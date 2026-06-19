@@ -393,7 +393,7 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
         <button class="toolbar-btn" id="prevPage" type="button">Previous</button>
         <button class="toolbar-btn primary" id="nextPage" type="button">Next</button>
       </div>
-      <div class="tap-note">Tap page to turn</div>
+      <div class="tap-note" id="tapHint">Tap right for next, left for previous</div>
     </div>
 
     <div class="booklet-stage" id="bookletStage">
@@ -546,6 +546,7 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
   const prevButton = document.getElementById('prevPage');
   const stage = document.getElementById('bookletStage');
   const dotsHost = document.getElementById('pageDots');
+  const tapHint = document.getElementById('tapHint');
 
   const pages = order.map((entry, index) => {
     const source = document.querySelector('.panel.' + entry.className);
@@ -576,6 +577,19 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
 
   let currentIndex = 0;
   let isAnimating = false;
+
+  function isMobileTapMode() {
+    return window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+  }
+
+  function updateTapHint() {
+    if (!tapHint) {
+      return;
+    }
+    tapHint.textContent = isMobileTapMode()
+      ? 'Tap right for next, left for previous'
+      : 'Click page to advance';
+  }
 
   function applyScale() {
     const isWide = window.innerWidth >= 900;
@@ -639,8 +653,19 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
 
   nextButton.addEventListener('click', () => go(1));
   prevButton.addEventListener('click', () => go(-1));
-  stage.addEventListener('click', () => go(1));
-  window.addEventListener('resize', applyScale);
+  stage.addEventListener('click', event => {
+    if (isMobileTapMode()) {
+      const bounds = stage.getBoundingClientRect();
+      const tapX = event.clientX - bounds.left;
+      go(tapX < bounds.width / 2 ? -1 : 1);
+      return;
+    }
+    go(1);
+  });
+  window.addEventListener('resize', () => {
+    applyScale();
+    updateTapHint();
+  });
   window.addEventListener('keydown', event => {
     if (event.key === 'ArrowRight' || event.key === ' ') {
       event.preventDefault();
@@ -652,6 +677,7 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
     }
   });
 
+  updateTapHint();
   render();
 })();
 </script>
