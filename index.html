@@ -588,7 +588,7 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
     }
     tapHint.textContent = isMobileTapMode()
       ? 'Tap right for next, left for previous'
-      : 'Click page to advance';
+      : 'Click right for next, left for previous';
   }
 
   function applyScale() {
@@ -654,13 +654,9 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
   nextButton.addEventListener('click', () => go(1));
   prevButton.addEventListener('click', () => go(-1));
   stage.addEventListener('click', event => {
-    if (isMobileTapMode()) {
-      const bounds = stage.getBoundingClientRect();
-      const tapX = event.clientX - bounds.left;
-      go(tapX < bounds.width / 2 ? -1 : 1);
-      return;
-    }
-    go(1);
+    const bounds = stage.getBoundingClientRect();
+    const tapX = event.clientX - bounds.left;
+    go(tapX < bounds.width / 2 ? -1 : 1);
   });
   window.addEventListener('resize', () => {
     applyScale();
