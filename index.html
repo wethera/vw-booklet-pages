@@ -76,11 +76,18 @@ body{
   background:var(--cp-bg);
   color:var(--cp-text);
   padding:0;
-  min-height:100vh
+  min-height:100vh;
+  min-height:100dvh
 }
 
 .digital-shell{display:none}
-.js-digital .digital-shell{display:block;width:100%;max-width:none;margin:0}
+.js-digital .digital-shell{
+  display:block;
+  width:100%;
+  max-width:1400px;
+  margin:0 auto;
+  padding:clamp(6px, 1.6vw, 18px)
+}
 .js-digital .instr,.js-digital .sheet-label,.js-digital .sheet{display:none}
 
 .noscript-nav{display:none}
@@ -205,6 +212,8 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
   border-radius:16px;
   padding:0;
   overflow:hidden;
+  min-height:calc(100vh - 12px);
+  min-height:calc(100dvh - 12px);
 }
 
 #digitalPages{
@@ -280,6 +289,11 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
   .digital-header{margin-bottom:6px}
   .digital-toolbar{justify-content:space-between;align-items:center}
   .page-caption{flex-direction:column;align-items:flex-start}
+  .js-digital .digital-shell{padding:4px}
+  .booklet-stage{
+    min-height:calc(100vh - 8px);
+    min-height:calc(100dvh - 8px);
+  }
 }
 
 
@@ -563,10 +577,13 @@ html:not(.js-digital) #ns-page-4:checked ~ .noscript-nav label[for="ns-page-4"]{
   let isAnimating = false;
 
   function applyScale() {
-    const top = stage.getBoundingClientRect().top;
-    const availableWidth = Math.max(stage.clientWidth - 4, 240);
-    const availableHeight = Math.max(window.innerHeight - top - 8, 240);
-    const scale = Math.min(availableWidth / 528, availableHeight / 816, 1);
+    const isWide = window.innerWidth >= 900;
+    const widthReserve = isWide ? 36 : 8;
+    const heightReserve = isWide ? 28 : 8;
+    const availableWidth = Math.max(stage.clientWidth - widthReserve, 260);
+    const availableHeight = Math.max(window.innerHeight - heightReserve, 300);
+    const maxScale = isWide ? 1.42 : 1;
+    const scale = Math.min(availableWidth / 528, availableHeight / 816, maxScale);
     const scaledHeight = 816 * scale;
 
     pagesHost.style.height = scaledHeight + 'px';
